@@ -1,0 +1,19 @@
+c:\users\bryan zerrudo\documents\visual studio 2015\Projects\[CS179.14] Final Project\[CS179.14] Final Project\bin\x86\Debug\[CS179.14] Final Project.exe.config
+c:\users\bryan zerrudo\documents\visual studio 2015\Projects\[CS179.14] Final Project\[CS179.14] Final Project\obj\x86\Debug\Nook.csprojResolveAssemblyReference.cache
+c:\users\bryan zerrudo\documents\visual studio 2015\Projects\[CS179.14] Final Project\[CS179.14] Final Project\bin\x86\Debug\csfml-audio-2.dll
+c:\users\bryan zerrudo\documents\visual studio 2015\Projects\[CS179.14] Final Project\[CS179.14] Final Project\bin\x86\Debug\csfml-graphics-2.dll
+c:\users\bryan zerrudo\documents\visual studio 2015\Projects\[CS179.14] Final Project\[CS179.14] Final Project\bin\x86\Debug\csfml-network-2.dll
+c:\users\bryan zerrudo\documents\visual studio 2015\Projects\[CS179.14] Final Project\[CS179.14] Final Project\bin\x86\Debug\csfml-system-2.dll
+c:\users\bryan zerrudo\documents\visual studio 2015\Projects\[CS179.14] Final Project\[CS179.14] Final Project\bin\x86\Debug\csfml-window-2.dll
+c:\users\bryan zerrudo\documents\visual studio 2015\Projects\[CS179.14] Final Project\[CS179.14] Final Project\bin\x86\Debug\libsndfile-1.dll
+c:\users\bryan zerrudo\documents\visual studio 2015\Projects\[CS179.14] Final Project\[CS179.14] Final Project\bin\x86\Debug\openal32.dll
+c:\users\bryan zerrudo\documents\visual studio 2015\Projects\[CS179.14] Final Project\[CS179.14] Final Project\bin\x86\Debug\OpenTK.Compatibility.dll
+c:\users\bryan zerrudo\documents\visual studio 2015\Projects\[CS179.14] Final Project\[CS179.14] Final Project\bin\x86\Debug\OpenTK.dll
+c:\users\bryan zerrudo\documents\visual studio 2015\Projects\[CS179.14] Final Project\[CS179.14] Final Project\bin\x86\Debug\[CS179.14] Final Project.exe
+c:\users\bryan zerrudo\documents\visual studio 2015\Projects\[CS179.14] Final Project\[CS179.14] Final Project\bin\x86\Debug\[CS179.14] Final Project.pdb
+c:\users\bryan zerrudo\documents\visual studio 2015\Projects\[CS179.14] Final Project\[CS179.14] Final Project\bin\x86\Debug\sfmlnet-audio-2.dll
+c:\users\bryan zerrudo\documents\visual studio 2015\Projects\[CS179.14] Final Project\[CS179.14] Final Project\bin\x86\Debug\sfmlnet-graphics-2.dll
+c:\users\bryan zerrudo\documents\visual studio 2015\Projects\[CS179.14] Final Project\[CS179.14] Final Project\bin\x86\Debug\sfmlnet-system-2.dll
+c:\users\bryan zerrudo\documents\visual studio 2015\Projects\[CS179.14] Final Project\[CS179.14] Final Project\bin\x86\Debug\sfmlnet-window-2.dll
+c:\users\bryan zerrudo\documents\visual studio 2015\Projects\[CS179.14] Final Project\[CS179.14] Final Project\obj\x86\Debug\[CS179.14] Final Project.exe
+c:\users\bryan zerrudo\documents\visual studio 2015\Projects\[CS179.14] Final Project\[CS179.14] Final Project\obj\x86\Debug\[CS179.14] Final Project.pdb
