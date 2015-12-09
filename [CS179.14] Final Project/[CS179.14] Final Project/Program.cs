@@ -12,7 +12,6 @@ namespace Nook
         bool hasJumped, hasLanded = true, hasStoppedMoving = false, isSteppingOnAPlatform = false;
         Vector2f posPrev;
 
-
         public Player(Texture texture)
         {
             this.Texture = texture;
@@ -106,6 +105,26 @@ namespace Nook
             set { this.posPrev = value; }
         }
 
+        public float UpperBound
+        {
+            get { return this.Position.Y; }
+        }
+
+        public float LowerBound
+        {
+            get { return this.Position.Y + this.TextureRect.Height; }
+        }
+
+        public float LeftBound
+        {
+            get { return this.Position.X; }
+        }
+
+        public float RightBound
+        {
+            get { return this.Position.X + this.TextureRect.Width; }
+        }
+
         public float ClampXCoord(float testValue)
         {
             if (testValue < this.Position.X)
@@ -191,11 +210,18 @@ namespace Nook
             get { return this.radius; }
             set { this.radius = value; }
         }
+        
+        public Vector2f Center
+        {
+            get { return new Vector2f(this.Position.X + radius, this.Position.Y + radius); }
+        }
     }
 
     class Platform : Sprite
     {
         float xAccel, yAccel, xVel, yVel;
+        List<Player> players = new List<Player>();
+        Vector2f posPrev;
 
         public Platform(Texture texture)
         {
@@ -204,6 +230,7 @@ namespace Nook
 
         public void Move(float x, float y)
         {
+            this.posPrev = this.Position;
             this.Position = new Vector2f(this.Position.X + x, this.Position.Y + y);
         }
 
@@ -230,6 +257,43 @@ namespace Nook
             get { return this.yVel; }
             set { this.yVel = value; }
         }
+
+        public Vector2f PosPrev
+        {
+            get { return this.posPrev; }
+            set { this.posPrev = value; }
+        }
+
+        public List<Player> Players
+        {
+            get { return this.players; }
+            set { this.players = value; }
+        }
+
+        public float UpperBound
+        {
+            get { return this.Position.Y; }
+        }
+
+        public float LowerBound
+        {
+            get { return this.Position.Y + this.TextureRect.Height; }
+        }
+
+        public float LeftBound
+        {
+            get { return this.Position.X; }
+        }
+
+        public float RightBound
+        {
+            get { return this.Position.X + this.TextureRect.Width; }
+        }
+
+        public Vector2f Center
+        {
+            get { return new Vector2f(this.Position.X + (this.TextureRect.Width / 2), this.Position.Y + (this.TextureRect.Height / 2)); }
+        }
     }
 
     class Program
@@ -244,17 +308,22 @@ namespace Nook
         static Random randomizer = new Random();
         static Player player1 = new Player(new Texture("shibuya_crossing_by_fatlittlenick.jpg", new IntRect(0, 0, 20, 45)));
         static Player player2 = new Player(new Texture("shibuya_crossing_by_fatlittlenick.jpg", new IntRect(0, 0, 20, 45)));
-        static Ball ball = new Ball(new Texture("shibuya_crossing_by_fatlittlenick.jpg", new IntRect(windowRightBound / 2, windowUpperBound + 10, 30, 30)));
+        static Ball centerBall = new Ball(new Texture("shibuya_crossing_by_fatlittlenick.jpg", new IntRect(0, 0, 20, 20)));
+        static Ball ball1 = new Ball(new Texture("shibuya_crossing_by_fatlittlenick.jpg", new IntRect(windowRightBound / 2, windowUpperBound + 10, 30, 30)));
         static Platform fixedPlatform1 = new Platform(new Texture("shibuya_crossing_by_fatlittlenick.jpg", new IntRect(randomizer.Next(windowLeftBound, windowRightBound - 100), randomizer.Next(100, 200), 100, 10)));
         static Platform fixedPlatform2 = new Platform(new Texture("shibuya_crossing_by_fatlittlenick.jpg", new IntRect(randomizer.Next(windowLeftBound, windowRightBound - 100), randomizer.Next(100, 200), 100, 10)));
         static Platform fixedPlatform3 = new Platform(new Texture("shibuya_crossing_by_fatlittlenick.jpg", new IntRect(randomizer.Next(windowLeftBound, windowRightBound - 100), randomizer.Next(100, 200), 100, 10)));
         static Platform fixedPlatform4 = new Platform(new Texture("shibuya_crossing_by_fatlittlenick.jpg", new IntRect(randomizer.Next(windowLeftBound, windowRightBound - 100), randomizer.Next(100, 200), 100, 10)));
-        static Platform movingplatform1 = new Platform(new Texture("shibuya_crossing_by_fatlittlenick.jpg", new IntRect(randomizer.Next(windowLeftBound, windowRightBound - 100), randomizer.Next(100, 200), 100, 10)));
-        static Platform movingplatform2 = new Platform(new Texture("shibuya_crossing_by_fatlittlenick.jpg", new IntRect(randomizer.Next(windowLeftBound, windowRightBound - 100), randomizer.Next(100, 200), 100, 10)));
-        static Platform movingplatform3 = new Platform(new Texture("shibuya_crossing_by_fatlittlenick.jpg", new IntRect(randomizer.Next(windowLeftBound, windowRightBound - 100), randomizer.Next(100, 200), 100, 10)));
-        static Platform movingplatform4 = new Platform(new Texture("shibuya_crossing_by_fatlittlenick.jpg", new IntRect(randomizer.Next(windowLeftBound, windowRightBound - 100), randomizer.Next(100, 200), 100, 10)));
-        static float movingPlatformMinX = windowRightBound / 10, movingPlatformMaxX = 9 * windowRightBound / 10;
-        static float movingPlatformMinY = 2 * windowLowerBound / 10, movingPlatformMaxY = 8 * windowLowerBound / 10;
+        static Platform movingPlatform1 = new Platform(new Texture("shibuya_crossing_by_fatlittlenick.jpg", new IntRect(randomizer.Next(windowLeftBound, windowRightBound - 100), randomizer.Next(100, 200), 100, 10)));
+        static Platform movingPlatform2 = new Platform(new Texture("shibuya_crossing_by_fatlittlenick.jpg", new IntRect(randomizer.Next(windowLeftBound, windowRightBound - 100), randomizer.Next(100, 200), 100, 10)));
+        static Platform movingPlatform3 = new Platform(new Texture("shibuya_crossing_by_fatlittlenick.jpg", new IntRect(randomizer.Next(windowLeftBound, windowRightBound - 100), randomizer.Next(100, 200), 100, 10)));
+        static Platform movingPlatform4 = new Platform(new Texture("shibuya_crossing_by_fatlittlenick.jpg", new IntRect(randomizer.Next(windowLeftBound, windowRightBound - 100), randomizer.Next(100, 200), 100, 10)));
+        static VertexArray movingPlatform1Anchor = new VertexArray(PrimitiveType.LinesStrip, 2);
+        static VertexArray movingPlatform2Anchor = new VertexArray(PrimitiveType.LinesStrip, 2);
+        static VertexArray movingPlatform3Anchor = new VertexArray(PrimitiveType.LinesStrip, 2);
+        static VertexArray movingPlatform4Anchor = new VertexArray(PrimitiveType.LinesStrip, 2);
+        static float movingPlatformMinX = windowRightBound / 10, movingPlatformMaxX = 9 * windowRightBound / 10; //400 10
+        static float movingPlatformMinY = 2 * windowLowerBound / 10, movingPlatformMaxY = 8 * windowLowerBound / 10; //360 9
 
         static void UpdatePlayerMovement(Player player)
         {
@@ -333,40 +402,57 @@ namespace Nook
             ball.Move(ball.XVel * deltaTime * 0.5f, ball.YVel * deltaTime * 0.5f);
         }
 
-        static void UpdatePlatformMovement(Platform platform)
+        static void UpdatePlatformMovement(Platform platform, VertexArray anchor)
         {
             if (platform.Position.X < movingPlatformMinX || platform.Position.X + platform.TextureRect.Width > movingPlatformMaxX)
             {
                 platform.XVel = -platform.XVel;
             }
 
-            if (platform.Position.Y < movingPlatformMinY || platform.Position.Y + platform.TextureRect.Height > movingPlatformMaxY)
+            if (platform.Position.Y < movingPlatformMinY || platform.Position.Y > movingPlatformMaxY)
             {
                 platform.YVel = -platform.YVel;
             }
 
             platform.Move(platform.XVel * deltaTime * 0.5f, platform.YVel * deltaTime * 0.5f);
+            anchor[0] = new Vertex(platform.Center);
+            anchor[1] = new Vertex(centerBall.Center);
+
         }
 
         static void CheckIfPlayerCollidesWithPlatform(Player player, List<Platform> platformArray)
         {
             foreach (Platform testPlatform in platformArray)
             {
-                bool isLowerLeftVertexInsidePlatformBoundary = ((int)player.Position.X >= (int)testPlatform.Position.X) && ((int)player.Position.X <= (int)testPlatform.Position.X + testPlatform.TextureRect.Width);
-                bool isLowerRightVertexInsidePlatformBoundary = ((int)player.Position.X + player.TextureRect.Width >= (int)testPlatform.Position.X) && ((int)player.Position.X + player.TextureRect.Width <= (int)testPlatform.Position.X + testPlatform.TextureRect.Width);
-                bool isIntersectingWithPlatform = (player.Position.Y <= testPlatform.Position.Y) && (player.Position.Y + player.TextureRect.Height >= testPlatform.Position.Y);
-
-                if (isIntersectingWithPlatform && (isLowerLeftVertexInsidePlatformBoundary || isLowerRightVertexInsidePlatformBoundary) && player.PosPrev.Y + player.TextureRect.Height <= testPlatform.Position.Y)
+                if ((player.UpperBound >= testPlatform.UpperBound && player.UpperBound <= testPlatform.LowerBound) && ((player.LeftBound >= testPlatform.LeftBound && player.RightBound <= testPlatform.RightBound) || (player.RightBound >= testPlatform.LeftBound && player.RightBound <= testPlatform.RightBound)))
                 {
-                    player.Position = new Vector2f(player.Position.X, testPlatform.Position.Y - player.TextureRect.Height);
-                    player.HasLanded = true;
-                    player.IsSteppingOnAPlatform = true;
+                    player.Move(0, 1);
+                    player.YVel = -player.YVel;
                     break;
                 }
-                else if (player.IsSteppingOnAPlatform)
+                else if (((player.LowerBound >= testPlatform.UpperBound && player.LowerBound <= testPlatform.LowerBound) || (player.LowerBound >= testPlatform.LowerBound && player.UpperBound <= testPlatform.UpperBound)) && ((player.LeftBound >= testPlatform.LeftBound && player.LeftBound <= testPlatform.RightBound) || (player.RightBound >= testPlatform.LeftBound && player.RightBound <= testPlatform.RightBound)))
                 {
-                    player.IsSteppingOnAPlatform = false;
-                    player.HasLanded = false;
+                    if (!testPlatform.Players.Contains(player))
+                    {
+                        player.HasLanded = true;
+                        testPlatform.Players.Add(player);
+                        player.Position = new Vector2f(player.Position.X, testPlatform.UpperBound - player.TextureRect.Height);
+                    }
+                }
+
+                if (testPlatform.Players.Contains(player))
+                {
+                    if (!((player.LeftBound >= testPlatform.LeftBound && player.RightBound <= testPlatform.RightBound) || (player.RightBound >= testPlatform.LeftBound && player.RightBound <= testPlatform.RightBound)) || (!player.HasLanded))
+                    {
+                        player.HasLanded = false;
+                        testPlatform.Players.Remove(player);
+                        break;
+                    }
+                    else
+                    {
+                        player.Position = new Vector2f(player.Position.X, testPlatform.UpperBound - player.TextureRect.Height);
+                        break;
+                    }
                 }
             }
         }
@@ -399,7 +485,7 @@ namespace Nook
         //    }
         //}
 
-        static void CheckIfBallCollidesWithPlayer(Player player)
+        static void CheckIfBallCollidesWithPlayer(Player player, Ball ball)
         {
             Vector2f ballCenter = new Vector2f(ball.Position.X + ball.Radius, ball.Position.Y + ball.Radius);
             float distanceBallXtoPlayerX = ballCenter.X - player.ClampXCoord(ballCenter.X);
@@ -407,7 +493,7 @@ namespace Nook
             float distance = (float)Math.Sqrt(distanceBallXtoPlayerX * distanceBallXtoPlayerX + distanceBallYtoPlayerY * distanceBallYtoPlayerY);
             if (distance < ball.TextureRect.Width / 2)
             {
-                //add event for collision!
+                // do nothing / collision!
             }
         }
 
@@ -416,56 +502,60 @@ namespace Nook
             //------------------------------Initialize Values------------------------------
             player1.Position = new Vector2f(windowLeftBound + 50, windowLowerBound - player1.TextureRect.Height);
             player2.Position = new Vector2f(windowRightBound - player2.TextureRect.Width - 50, windowLowerBound - player2.TextureRect.Height);
-            ball.Position = new Vector2f(windowRightBound / 2, windowUpperBound + ball.TextureRect.Height + 10);
-            //ball.XVel = 30;
-            //ball.YVel = 40;
+            ball1.Position = new Vector2f(windowRightBound / 2, windowUpperBound + ball1.TextureRect.Height + 10);
+            centerBall.Position = new Vector2f(windowRightBound / 2 - centerBall.Radius, windowLowerBound / 2 - centerBall.Radius);
+            ball1.XVel = 30;
+            ball1.YVel = 40;
             fixedPlatform1.Position = new Vector2f(windowLeftBound, windowLowerBound / 6);
             fixedPlatform2.Position = new Vector2f(windowLeftBound, 5 * windowLowerBound / 6);
             fixedPlatform3.Position = new Vector2f(windowRightBound - fixedPlatform3.TextureRect.Width, windowLowerBound / 6);
             fixedPlatform4.Position = new Vector2f(windowRightBound - fixedPlatform4.TextureRect.Width, 5 * windowLowerBound / 6);
-            //movingplatform1.Position = new Vector2f(movingPlatformMinX, window)
-            movingplatform2.Position = new Vector2f(windowRightBound / 2 - movingplatform2.TextureRect.Width / 2, 2 * windowLowerBound / 10);
-            movingplatform3.Position = new Vector2f(9 * windowRightBound / 10 - movingplatform3.TextureRect.Width, windowLowerBound / 2);
-            movingplatform4.Position = new Vector2f(windowRightBound / 2 - movingplatform4.TextureRect.Width / 2, 8 * windowLowerBound / 10 - movingplatform4.TextureRect.Height);
-            movingplatform1.YVel = -10; movingplatform1.XVel = (10 + 10 * 9 / 10);
-            movingplatform2.YVel = 10; movingplatform2.XVel = (10 + 10 * 9 / 10);
-            movingplatform3.YVel = 10; movingplatform3.XVel = -(10 + 10 * 9 / 10);
-            movingplatform4.YVel = -10; movingplatform4.XVel = -(10 + 10 * 9 / 10);
+            movingPlatform1.Position = new Vector2f(movingPlatformMinX, movingPlatformMinY + (movingPlatformMaxY - movingPlatformMinY) / 2);
+            movingPlatform2.Position = new Vector2f(movingPlatformMinX + (movingPlatformMaxX - movingPlatformMinX) / 2 - movingPlatform2.TextureRect.Width / 2, movingPlatformMinY);
+            movingPlatform3.Position = new Vector2f(movingPlatformMaxX - movingPlatform3.TextureRect.Width, movingPlatformMinY + (movingPlatformMaxY - movingPlatformMinY) / 2);
+            movingPlatform4.Position = new Vector2f(movingPlatformMinX + (movingPlatformMaxX - movingPlatformMinX) / 2 - movingPlatform2.TextureRect.Width / 2, movingPlatformMaxY);
+            movingPlatform1.XVel = 10; movingPlatform1.YVel = -12;
+            movingPlatform2.XVel = 10; movingPlatform2.YVel = 12;
+            movingPlatform3.XVel = -10; movingPlatform3.YVel = 12;
+            movingPlatform4.XVel = -10; movingPlatform4.YVel = -12;
 
             window.KeyPressed += Window_KeyPressed;
             window.KeyReleased += Window_KeyReleased;
-            List<Platform> platformCollection = new List<Platform>() { fixedPlatform1, fixedPlatform2, fixedPlatform3, fixedPlatform4, movingplatform1, movingplatform2, movingplatform3, movingplatform4 };
+            List<Platform> platformCollection = new List<Platform>() { fixedPlatform1, fixedPlatform2, fixedPlatform3, fixedPlatform4, movingPlatform1, movingPlatform2, movingPlatform3, movingPlatform4 };
 
             //3 Random Stages: Horizontal moving platforms, rotating platforms in the middles, appear disappear
 
             //------------------------------Game Loop------------------------------
             while (window.IsOpen)
             {
+                
                 window.DispatchEvents();
                 UpdatePlayerMovement(player1);
                 UpdatePlayerMovement(player2);
-                UpdateBallMovement(ball);
-                UpdatePlatformMovement(movingplatform1);
-                UpdatePlatformMovement(movingplatform2);
-                UpdatePlatformMovement(movingplatform3);
-                UpdatePlatformMovement(movingplatform4);
+                UpdateBallMovement(ball1);
+                UpdatePlatformMovement(movingPlatform1, movingPlatform1Anchor);
+                UpdatePlatformMovement(movingPlatform2, movingPlatform2Anchor);
+                UpdatePlatformMovement(movingPlatform3, movingPlatform3Anchor);
+                UpdatePlatformMovement(movingPlatform4, movingPlatform4Anchor);
                 window.Clear();
-                window.Draw(fixedPlatform1);
-                window.Draw(fixedPlatform2);
-                window.Draw(fixedPlatform3);
-                window.Draw(fixedPlatform4);
-                window.Draw(movingplatform1);
-                window.Draw(movingplatform2);
-                window.Draw(movingplatform3);
-                window.Draw(movingplatform4);
-                window.Draw(ball);
+                foreach (Platform platform in platformCollection)
+                {
+                    window.Draw(platform);
+                }
+                window.Draw(centerBall);
+                window.Draw(ball1);
                 window.Draw(player1);
                 window.Draw(player2);
+                window.Draw(movingPlatform1Anchor);
+                window.Draw(movingPlatform2Anchor);
+                window.Draw(movingPlatform3Anchor);
+                window.Draw(movingPlatform4Anchor);
                 window.Display();
                 CheckIfPlayerCollidesWithPlatform(player1, platformCollection);
                 CheckIfPlayerCollidesWithPlatform(player2, platformCollection);
-                CheckIfBallCollidesWithPlayer(player1);
-                CheckIfBallCollidesWithPlayer(player2);
+                CheckIfBallCollidesWithPlayer(player1, ball1);
+                CheckIfBallCollidesWithPlayer(player2, ball1);
+
             }
         }
 
@@ -538,7 +628,8 @@ namespace Nook
             }
             if (Keyboard.IsKeyPressed(Keyboard.Key.C))
             {
-                player1.XVel *= 3;
+                player1.YVel = 0;
+                player1.Move(player1.XVel * 2, 0);
             }
 
             //------------------------------Player 2 Control Module------------------------------
