@@ -8,13 +8,26 @@ namespace Nook
 {
     class Player : Sprite
     {
-        float xAccel, yAccel, xVel, yVel, initVel = 30, maxAccel = 5, maxVel = 50, jumpValue = 120;
+        float xAccel, yAccel, xVel, yVel, initVel = 30, maxAccel = 5, maxVel = 50, jumpValue = 90, traveledDistance = 0;
         bool hasJumped, hasLanded = true, hasStoppedMoving = false, isSteppingOnAPlatform = false;
         Vector2f posPrev;
+        List<Texture> spriteCollection;
 
-        public Player(Texture texture)
+        public Player(Texture standTexture1, Texture runTexture1, Texture runTexture2, Texture runTexture3, Texture standTexture2, Texture runTexture4, Texture runTexture5, Texture runTexture6, Texture jumpTexture1, Texture jumpTexture2, Texture fallTexture1, Texture fallTexture2)
         {
-            this.Texture = texture;
+            spriteCollection = new List<Texture>();
+            spriteCollection.Add(standTexture1);
+            spriteCollection.Add(runTexture1);
+            spriteCollection.Add(runTexture2);
+            spriteCollection.Add(runTexture3);
+            spriteCollection.Add(standTexture2);
+            spriteCollection.Add(runTexture4);
+            spriteCollection.Add(runTexture5);
+            spriteCollection.Add(runTexture6);
+            spriteCollection.Add(jumpTexture1);
+            spriteCollection.Add(jumpTexture2);
+            spriteCollection.Add(fallTexture1);
+            spriteCollection.Add(fallTexture2);
         }
 
         public void Move(float x, float y)
@@ -75,6 +88,12 @@ namespace Nook
             set { this.jumpValue = value; }
         }
 
+        public float TraveledDistance
+        {
+            get { return this.traveledDistance; }
+            set { this.traveledDistance = value; }
+        }
+
         public bool HasJumped
         {
             get { return this.hasJumped; }
@@ -117,12 +136,17 @@ namespace Nook
 
         public float LeftBound
         {
-            get { return this.Position.X; }
+            get { return this.Position.X + 20; }
         }
 
         public float RightBound
         {
-            get { return this.Position.X + this.TextureRect.Width; }
+            get { return this.Position.X + this.TextureRect.Width - 20; }
+        }
+
+        public List<Texture> SpriteCollection
+        {
+            get { return this.spriteCollection; }
         }
 
         public float ClampXCoord(float testValue)
@@ -301,15 +325,18 @@ namespace Nook
         //------------------------------Declare Game Variables/Retrieve Sprites------------------------------
         const float gravity = 13f;
         const float deltaTime = 0.01f;
+        static Clock Timer = new Clock();
+        static Time elapsedTime = new Time();
         static List<KeyEventArgs> keyboardEventHandler = new List<KeyEventArgs>();
         static ContextSettings context = new ContextSettings();
         static RenderWindow window = new RenderWindow(new VideoMode(500, 600), "Nook", Styles.Close, context);
+        static Sprite background = new Sprite(new Texture("castlevania_1.jpg"));
         static int windowLeftBound = 0, windowRightBound = (int)window.Size.X, windowUpperBound = 0, windowLowerBound = (int)window.Size.Y;
         static Random randomizer = new Random();
-        static Player player1 = new Player(new Texture("shibuya_crossing_by_fatlittlenick.jpg", new IntRect(0, 0, 20, 45)));
-        static Player player2 = new Player(new Texture("shibuya_crossing_by_fatlittlenick.jpg", new IntRect(0, 0, 20, 45)));
-        static Ball centerBall = new Ball(new Texture("shibuya_crossing_by_fatlittlenick.jpg", new IntRect(0, 0, 20, 20)));
+        static Player player1 = new Player(new Texture("Neku - Stand 1.png"), new Texture("Neku - Run 1.png"), new Texture("Neku - Run 2.png"), new Texture("Neku - Run 3.png"), new Texture("Neku - Stand 2.png"), new Texture("Neku - Run 4.png"), new Texture("Neku - Run 5.png"), new Texture("Neku - Run 6.png"), new Texture("Neku - Jump 1.png"), new Texture("Neku - Jump 2.png"), new Texture("Neku - Fall 1.png"), new Texture("Neku - Fall 2.png"));
+        static Player player2 = new Player(new Texture("Shiki - Stand 1.png"), new Texture("Shiki - Run 1.png"), new Texture("Shiki - Run 2.png"), new Texture("Shiki - Run 3.png"), new Texture("Shiki - Stand 2.png"), new Texture("Shiki - Run 4.png"), new Texture("Shiki - Run 5.png"), new Texture("Shiki - Run 6.png"), new Texture("Shiki - Jump 1.png"), new Texture("Shiki - Jump 2.png"), new Texture("Shiki - Fall 1.png"), new Texture("Shiki - Fall 2.png"));
         static Ball ball1 = new Ball(new Texture("shibuya_crossing_by_fatlittlenick.jpg", new IntRect(windowRightBound / 2, windowUpperBound + 10, 30, 30)));
+        static Platform centerPlatform = new Platform(new Texture("shibuya_crossing_by_fatlittlenick.jpg", new IntRect(0, 0, 20, 20)));
         static Platform fixedPlatform1 = new Platform(new Texture("shibuya_crossing_by_fatlittlenick.jpg", new IntRect(randomizer.Next(windowLeftBound, windowRightBound - 100), randomizer.Next(100, 200), 100, 10)));
         static Platform fixedPlatform2 = new Platform(new Texture("shibuya_crossing_by_fatlittlenick.jpg", new IntRect(randomizer.Next(windowLeftBound, windowRightBound - 100), randomizer.Next(100, 200), 100, 10)));
         static Platform fixedPlatform3 = new Platform(new Texture("shibuya_crossing_by_fatlittlenick.jpg", new IntRect(randomizer.Next(windowLeftBound, windowRightBound - 100), randomizer.Next(100, 200), 100, 10)));
@@ -322,8 +349,8 @@ namespace Nook
         static VertexArray movingPlatform2Anchor = new VertexArray(PrimitiveType.LinesStrip, 2);
         static VertexArray movingPlatform3Anchor = new VertexArray(PrimitiveType.LinesStrip, 2);
         static VertexArray movingPlatform4Anchor = new VertexArray(PrimitiveType.LinesStrip, 2);
-        static float movingPlatformMinX = windowRightBound / 10, movingPlatformMaxX = 9 * windowRightBound / 10; //400 10
-        static float movingPlatformMinY = 2 * windowLowerBound / 10, movingPlatformMaxY = 8 * windowLowerBound / 10; //360 9
+        static float movingPlatformMinX = windowRightBound / 10, movingPlatformMaxX = 9 * windowRightBound / 10;
+        static float movingPlatformMinY = 2 * windowLowerBound / 10, movingPlatformMaxY = 8 * windowLowerBound / 10;
 
         static void UpdatePlayerMovement(Player player)
         {
@@ -333,9 +360,27 @@ namespace Nook
                 player.YAccel = 0;
                 player.YVel = 0;
                 player.HasJumped = false;
+
+                if (player.Texture == player.SpriteCollection[10])
+                {
+                    player.Texture = player.SpriteCollection[0];
+                }
+                else if (player.Texture == player.SpriteCollection[11])
+                {
+                    player.Texture = player.SpriteCollection[4];
+                }
             }
             else
             {
+                if (player.Texture == player.SpriteCollection[8] && player.YVel > 0)
+                {
+                    player.Texture = player.SpriteCollection[10];
+                }
+                else if (player.Texture == player.SpriteCollection[9] && player.YVel > 0)
+                {
+                    player.Texture = player.SpriteCollection[11];
+                }
+
                 player.HasJumped = true;
                 player.YAccel += gravity * deltaTime;
                 player.YVel += player.YAccel * deltaTime;
@@ -366,21 +411,21 @@ namespace Nook
             }
 
             //------------------------------Gradually Slow the Player Down to a Stop------------------------------
-            if (player.HasStoppedMoving && player.HasLanded)
-            {
-                if (player.XVel > 0)
-                {
-                    player.XVel -= 0.5f;
-                }
-                else if (player.XVel < 0)
-                {
-                    player.XVel += 0.5f;
-                }
-                else
-                {
-                    player.HasStoppedMoving = false;
-                }
-            }
+            //if (player.HasStoppedMoving && player.HasLanded)
+            //{
+            //    if (player.XVel > 0)
+            //    {
+            //        player.XVel -= 0.5f;
+            //    }
+            //    else if (player.XVel < 0)
+            //    {
+            //        player.XVel += 0.5f;
+            //    }
+            //    else
+            //    {
+            //        player.HasStoppedMoving = false;
+            //    }
+            //}
 
             player.Move(player.XVel * deltaTime * 0.5f, player.YVel * deltaTime * 0.5f);
         }
@@ -416,7 +461,7 @@ namespace Nook
 
             platform.Move(platform.XVel * deltaTime * 0.5f, platform.YVel * deltaTime * 0.5f);
             anchor[0] = new Vertex(platform.Center);
-            anchor[1] = new Vertex(centerBall.Center);
+            anchor[1] = new Vertex(centerPlatform.Center);
 
         }
 
@@ -424,15 +469,44 @@ namespace Nook
         {
             foreach (Platform testPlatform in platformArray)
             {
-                if ((player.UpperBound >= testPlatform.UpperBound && player.UpperBound <= testPlatform.LowerBound) && ((player.LeftBound >= testPlatform.LeftBound && player.RightBound <= testPlatform.RightBound) || (player.RightBound >= testPlatform.LeftBound && player.RightBound <= testPlatform.RightBound)))
+                bool isPlayerUpperBoundInsidePlatformBounds = (player.UpperBound >= testPlatform.UpperBound) && (player.UpperBound <= testPlatform.LowerBound);
+                bool isPlayerLowerBoundInsidePlatformBounds = (player.LowerBound >= testPlatform.UpperBound) && (player.LowerBound <= testPlatform.LowerBound);
+                bool isPlayerLeftBoundInsidePlatformBounds = (player.LeftBound >= testPlatform.LeftBound) && (player.LeftBound <= testPlatform.RightBound);
+                bool isPlayerRightBoundInsidePlatformBounds = (player.RightBound >= testPlatform.LeftBound) && (player.RightBound <= testPlatform.RightBound);
+                bool isPlayerHeightInsidePlatformBounds = (isPlayerLowerBoundInsidePlatformBounds) || (player.LowerBound >= testPlatform.LowerBound && player.UpperBound <= testPlatform.UpperBound);
+
+                if (isPlayerUpperBoundInsidePlatformBounds && (isPlayerLeftBoundInsidePlatformBounds || isPlayerRightBoundInsidePlatformBounds))
                 {
                     player.Move(0, 1);
-                    player.YVel = -player.YVel;
+                    player.YVel = 0;
                     break;
                 }
-                else if (((player.LowerBound >= testPlatform.UpperBound && player.LowerBound <= testPlatform.LowerBound) || (player.LowerBound >= testPlatform.LowerBound && player.UpperBound <= testPlatform.UpperBound)) && ((player.LeftBound >= testPlatform.LeftBound && player.LeftBound <= testPlatform.RightBound) || (player.RightBound >= testPlatform.LeftBound && player.RightBound <= testPlatform.RightBound)))
+                else if (isPlayerLowerBoundInsidePlatformBounds && (isPlayerLeftBoundInsidePlatformBounds || isPlayerRightBoundInsidePlatformBounds))
                 {
                     if (!testPlatform.Players.Contains(player))
+                    {
+                        player.HasLanded = true;
+                        testPlatform.Players.Add(player);
+                        player.Position = new Vector2f(player.Position.X, testPlatform.UpperBound - player.TextureRect.Height);
+                    }
+                }
+                else if (isPlayerHeightInsidePlatformBounds && (isPlayerLeftBoundInsidePlatformBounds || isPlayerRightBoundInsidePlatformBounds))
+                {
+                    if ((isPlayerLeftBoundInsidePlatformBounds && !isPlayerRightBoundInsidePlatformBounds) || (!isPlayerLeftBoundInsidePlatformBounds && isPlayerRightBoundInsidePlatformBounds))
+                    {
+                        if (isPlayerLeftBoundInsidePlatformBounds)
+                        {
+                            player.Move(0.01f, 0);
+                        }
+                        else if (isPlayerRightBoundInsidePlatformBounds)
+                        {
+                            player.Move(-0.01f, 0);
+                        }
+                        player.XVel = 0;
+                        player.YVel = 0;
+                        break;
+                    }
+                    else if (!testPlatform.Players.Contains(player))
                     {
                         player.HasLanded = true;
                         testPlatform.Players.Add(player);
@@ -450,6 +524,7 @@ namespace Nook
                     }
                     else
                     {
+                        player.HasLanded = true;
                         player.Position = new Vector2f(player.Position.X, testPlatform.UpperBound - player.TextureRect.Height);
                         break;
                     }
@@ -497,13 +572,31 @@ namespace Nook
             }
         }
 
+        static void CheckTime()
+        {
+            elapsedTime = Timer.ElapsedTime;
+
+            if (elapsedTime.AsSeconds() >= 5)
+            {
+                
+            }
+        }
+
+        static void CheckKeyboardEvents()
+        {
+
+        }
+
         static void Main(string[] args)
         {
             //------------------------------Initialize Values------------------------------
+            background.Scale = new Vector2f(0.5f, 0.5f);
+            player1.Texture = player1.SpriteCollection[0];
             player1.Position = new Vector2f(windowLeftBound + 50, windowLowerBound - player1.TextureRect.Height);
+            player2.Texture = player2.SpriteCollection[4];
             player2.Position = new Vector2f(windowRightBound - player2.TextureRect.Width - 50, windowLowerBound - player2.TextureRect.Height);
             ball1.Position = new Vector2f(windowRightBound / 2, windowUpperBound + ball1.TextureRect.Height + 10);
-            centerBall.Position = new Vector2f(windowRightBound / 2 - centerBall.Radius, windowLowerBound / 2 - centerBall.Radius);
+            centerPlatform.Position = new Vector2f(windowRightBound / 2 - centerPlatform.TextureRect.Width, windowLowerBound / 2 - centerPlatform.TextureRect.Width);
             ball1.XVel = 30;
             ball1.YVel = 40;
             fixedPlatform1.Position = new Vector2f(windowLeftBound, windowLowerBound / 6);
@@ -521,14 +614,12 @@ namespace Nook
 
             window.KeyPressed += Window_KeyPressed;
             window.KeyReleased += Window_KeyReleased;
-            List<Platform> platformCollection = new List<Platform>() { fixedPlatform1, fixedPlatform2, fixedPlatform3, fixedPlatform4, movingPlatform1, movingPlatform2, movingPlatform3, movingPlatform4 };
-
-            //3 Random Stages: Horizontal moving platforms, rotating platforms in the middles, appear disappear
+            List<Platform> platformCollection = new List<Platform>() { fixedPlatform1, fixedPlatform2, fixedPlatform3, fixedPlatform4, movingPlatform1, movingPlatform2, movingPlatform3, movingPlatform4, centerPlatform };
 
             //------------------------------Game Loop------------------------------
             while (window.IsOpen)
             {
-                
+                CheckTime();
                 window.DispatchEvents();
                 UpdatePlayerMovement(player1);
                 UpdatePlayerMovement(player2);
@@ -538,11 +629,12 @@ namespace Nook
                 UpdatePlatformMovement(movingPlatform3, movingPlatform3Anchor);
                 UpdatePlatformMovement(movingPlatform4, movingPlatform4Anchor);
                 window.Clear();
+                window.Draw(background);
                 foreach (Platform platform in platformCollection)
                 {
                     window.Draw(platform);
                 }
-                window.Draw(centerBall);
+                window.Draw(centerPlatform);
                 window.Draw(ball1);
                 window.Draw(player1);
                 window.Draw(player2);
@@ -555,7 +647,6 @@ namespace Nook
                 CheckIfPlayerCollidesWithPlatform(player2, platformCollection);
                 CheckIfBallCollidesWithPlayer(player1, ball1);
                 CheckIfBallCollidesWithPlayer(player2, ball1);
-
             }
         }
 
@@ -563,9 +654,29 @@ namespace Nook
         {
             keyboardEventHandler.Clear();
             player1.HasStoppedMoving = true;
-            player1.XAccel = 0;
+            player1.XVel = 0;
             player2.HasStoppedMoving = true;
-            player2.XAccel = 0;
+            player2.XVel = 0;
+
+            if (e.Code == Keyboard.Key.A && player1.HasLanded)
+            {
+                player1.Texture = player1.SpriteCollection[4];
+            }
+
+            if (e.Code == Keyboard.Key.D && player1.HasLanded)
+            {
+                player1.Texture = player1.SpriteCollection[0];
+            }
+
+            if (e.Code == Keyboard.Key.Left && player2.HasLanded)
+            {
+                player2.Texture = player2.SpriteCollection[4];
+            }
+
+            if (e.Code == Keyboard.Key.Right && player2.HasLanded)
+            {
+                player2.Texture = player2.SpriteCollection[0];
+            }
         }
 
         private static void Window_KeyPressed(object sender, KeyEventArgs e)
@@ -573,6 +684,44 @@ namespace Nook
             //------------------------------Player 1 Control Module------------------------------
             if (Keyboard.IsKeyPressed(Keyboard.Key.A))
             {
+                if (player1.Texture == player1.SpriteCollection[0])
+                {
+                    player1.Texture = player1.SpriteCollection[4];
+                }
+
+                if (player1.Texture == player1.SpriteCollection[4])
+                {
+                    player1.Texture = player1.SpriteCollection[5];
+                    player1.TraveledDistance = 3;
+                }
+                else if (player1.Texture == player1.SpriteCollection[5])
+                {
+                    if (player1.TraveledDistance == 3)
+                    {
+                        player1.Texture = player1.SpriteCollection[6];
+                        player1.TraveledDistance = 0;
+                    }
+                    player1.TraveledDistance += 1;
+                }
+                else if (player1.Texture == player1.SpriteCollection[6])
+                {
+                    if (player1.TraveledDistance == 3)
+                    {
+                        player1.Texture = player1.SpriteCollection[7];
+                        player1.TraveledDistance = 0;
+                    }
+                    player1.TraveledDistance += 1;
+                }
+                else if (player1.Texture == player1.SpriteCollection[7])
+                {
+                    if (player1.TraveledDistance == 3)
+                    {
+                        player1.Texture = player1.SpriteCollection[5];
+                        player1.TraveledDistance = 0;
+                    }
+                    player1.TraveledDistance += 1;
+                }
+
                 if (player1.XVel == 0)
                 {
                     player1.XVel = -player1.InitVel;
@@ -590,17 +739,55 @@ namespace Nook
                     player1.HasLanded = false;
                 }
             }
-            if (Keyboard.IsKeyPressed(Keyboard.Key.D))
+            if (e.Code == Keyboard.Key.D)
             {
+                if (player1.Texture == player1.SpriteCollection[4])
+                {
+                    player1.Texture = player1.SpriteCollection[0];
+                }
+
+                if (player1.Texture == player1.SpriteCollection[0])
+                {
+                    player1.Texture = player1.SpriteCollection[1];
+                    player1.TraveledDistance = 3;
+                }
+                else if (player1.Texture == player1.SpriteCollection[1])
+                {
+                    if (player1.TraveledDistance == 3)
+                    {
+                        player1.Texture = player1.SpriteCollection[2];
+                        player1.TraveledDistance = 0;
+                    }
+                    player1.TraveledDistance += 1;
+                }
+                else if (player1.Texture == player1.SpriteCollection[2])
+                {
+                    if (player1.TraveledDistance == 3)
+                    {
+                        player1.Texture = player1.SpriteCollection[3];
+                        player1.TraveledDistance = 0;
+                    }
+                    player1.TraveledDistance += 1;
+                }
+                else if (player1.Texture == player1.SpriteCollection[3])
+                {
+                    if (player1.TraveledDistance == 3)
+                    {
+                        player1.Texture = player1.SpriteCollection[1];
+                        player1.TraveledDistance = 0;
+                    }
+                    player1.TraveledDistance += 1;
+                }
+
                 if (player1.XVel == 0)
                 {
                     player1.XVel = player1.InitVel;
                 }
-                if (player1.XAccel < player1.MaxAccel)
+                else if (player1.XAccel < player1.MaxAccel)
                 {
                     player1.XAccel += 1;
                 }
-                if (player1.XVel < player1.MaxVel)
+                else if (player1.XVel < player1.MaxVel)
                 {
                     player1.XVel += player1.XAccel;
                 }
@@ -611,6 +798,15 @@ namespace Nook
             }
             if (Keyboard.IsKeyPressed(Keyboard.Key.W))
             {
+                if (player1.Texture == player1.SpriteCollection[0] || player1.Texture == player1.SpriteCollection[1] || player1.Texture == player1.SpriteCollection[2] || player1.Texture == player1.SpriteCollection[3])
+                {
+                    player1.Texture = player1.SpriteCollection[8];
+                }
+                else if (player1.Texture == player1.SpriteCollection[4] || player1.Texture == player1.SpriteCollection[5] || player1.Texture == player1.SpriteCollection[6] || player1.Texture == player1.SpriteCollection[7])
+                {
+                    player1.Texture = player1.SpriteCollection[9];
+                }
+
                 if (!player1.HasJumped)
                 {
                     player1.HasJumped = true;
@@ -635,6 +831,44 @@ namespace Nook
             //------------------------------Player 2 Control Module------------------------------
             if (Keyboard.IsKeyPressed(Keyboard.Key.Left))
             {
+                if (player2.Texture == player2.SpriteCollection[0])
+                {
+                    player2.Texture = player2.SpriteCollection[4];
+                }
+
+                if (player2.Texture == player2.SpriteCollection[4])
+                {
+                    player2.Texture = player2.SpriteCollection[5];
+                    player2.TraveledDistance = 3;
+                }
+                else if (player2.Texture == player2.SpriteCollection[5])
+                {
+                    if (player2.TraveledDistance == 3)
+                    {
+                        player2.Texture = player2.SpriteCollection[6];
+                        player2.TraveledDistance = 0;
+                    }
+                    player2.TraveledDistance += 1;
+                }
+                else if (player2.Texture == player2.SpriteCollection[6])
+                {
+                    if (player2.TraveledDistance == 3)
+                    {
+                        player2.Texture = player2.SpriteCollection[7];
+                        player2.TraveledDistance = 0;
+                    }
+                    player2.TraveledDistance += 1;
+                }
+                else if (player2.Texture == player2.SpriteCollection[7])
+                {
+                    if (player2.TraveledDistance == 3)
+                    {
+                        player2.Texture = player2.SpriteCollection[5];
+                        player2.TraveledDistance = 0;
+                    }
+                    player2.TraveledDistance += 1;
+                }
+
                 if (player2.XVel == 0)
                 {
                     player2.XVel = -player2.InitVel;
@@ -654,6 +888,43 @@ namespace Nook
             }
             if (Keyboard.IsKeyPressed(Keyboard.Key.Right))
             {
+                if (player2.Texture == player2.SpriteCollection[4])
+                {
+                    player2.Texture = player2.SpriteCollection[0];
+                }
+
+                if (player2.Texture == player2.SpriteCollection[0])
+                {
+                    player2.Texture = player2.SpriteCollection[1];
+                    player2.TraveledDistance = 3;
+                }
+                else if (player2.Texture == player2.SpriteCollection[1])
+                {
+                    if (player2.TraveledDistance == 3)
+                    {
+                        player2.Texture = player2.SpriteCollection[2];
+                        player2.TraveledDistance = 0;
+                    }
+                    player2.TraveledDistance += 1;
+                }
+                else if (player2.Texture == player2.SpriteCollection[2])
+                {
+                    if (player2.TraveledDistance == 3)
+                    {
+                        player2.Texture = player2.SpriteCollection[3];
+                        player2.TraveledDistance = 0;
+                    }
+                    player2.TraveledDistance += 1;
+                }
+                else if (player2.Texture == player2.SpriteCollection[3])
+                {
+                    if (player2.TraveledDistance == 3)
+                    {
+                        player2.Texture = player2.SpriteCollection[1];
+                        player2.TraveledDistance = 0;
+                    }
+                    player2.TraveledDistance += 1;
+                }
                 if (player2.XVel == 0)
                 {
                     player2.XVel = player2.InitVel;
@@ -673,6 +944,15 @@ namespace Nook
             }
             if (Keyboard.IsKeyPressed(Keyboard.Key.Up))
             {
+                if (player2.Texture == player2.SpriteCollection[0] || player2.Texture == player2.SpriteCollection[1] || player2.Texture == player2.SpriteCollection[2] || player2.Texture == player2.SpriteCollection[3])
+                {
+                    player2.Texture = player2.SpriteCollection[8];
+                }
+                else if (player2.Texture == player2.SpriteCollection[4] || player2.Texture == player2.SpriteCollection[5] || player2.Texture == player2.SpriteCollection[6] || player2.Texture == player2.SpriteCollection[7])
+                {
+                    player2.Texture = player2.SpriteCollection[9];
+                }
+
                 if (!player2.HasJumped)
                 {
                     player2.HasJumped = true;
